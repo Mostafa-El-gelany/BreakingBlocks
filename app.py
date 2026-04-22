@@ -1,6 +1,6 @@
 import pygame
-import Button
-import total
+import src.Button as Button
+import src.total as total
 import time
 import random
 import copy
@@ -290,15 +290,15 @@ mB=1
 
 
 while run:   
-   if(xyt%10==0):
-      print("menu state :: ",menu_state)
-      print("Algorithm  :: ",Algorithm_Name)
-      print("--------------------")
-   xyt+=1
+#   if(xyt%10==0):
+#      print("menu state :: ",menu_state)
+#      print("Algorithm  :: ",Algorithm_Name)
+#      print("--------------------")
+#   xyt+=1
    if menu_state == "main":
          if mB:
-             Start_effect.play()
-             mB-=1
+            Start_effect.play()
+            mB-=1
          screen.blit(Background_Main,(0,0))
          if Start_Button.draw(screen):
             menu_state = "Rundom"
@@ -334,7 +334,7 @@ while run:
          
          
          
-                     
+         
    elif menu_state == "SelectFamily":
          screen.blit(Background_Family,(0,0))
          if uninformed_Button.draw(screen):
@@ -361,7 +361,7 @@ while run:
          if BFS_Button.draw(screen):
             Algorithm_Name="BFS"
             Click_effect.play()
-             
+            
             pygame.time.delay(delay)
          if ID_Button.draw(screen):
             Algorithm_Name="ID"
@@ -415,13 +415,13 @@ while run:
          elapsed_time_ms = (end_time - start_time) * 1000
          elapsed_time_m=math.trunc(elapsed_time_ms)          
          lengthof_selution= math.trunc (len(ansA)/3)
-        # 
+      # 
          complet="YES"
          optemal="NO"
          Algo_Name="Depth First Search"
          Ospace=math.trunc(total_state*400/1024)
          display_Algo() 
-          
+         
          pygame.time.delay(1500)
          menu_state = "SelectFamily"
          Algorithm_Name="None"
@@ -446,7 +446,7 @@ while run:
          pygame.time.delay(1500)
          menu_state = "SelectFamily"
          Algorithm_Name="None"
-             
+            
       elif Algorithm_Name=="BFS":
          print("BFS")
          display()
@@ -543,19 +543,19 @@ while run:
          menu_state = "SelectFamily"
          Algorithm_Name="None"
       
-          
+      
 
    
          
    for event in pygame.event.get():
-     if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_SPACE:
+      if event.type == pygame.KEYDOWN:
+         if event.key == pygame.K_SPACE:
             game_paused = True
-     if event.type == pygame.QUIT:
-        run = False
-     clock.tick(TimeE)
-     pygame.display.update()
+      if event.type == pygame.QUIT:
+         run = False
+   clock.tick(TimeE)
    pygame.display.update()
-  #   display()
+   pygame.display.update()
+#   display()
 
 pygame.quit()
