@@ -1,12 +1,20 @@
 import pygame
 import src.Button as Button
 import src.total as total
+# Use helper implementations from src.total to avoid duplication
+print_list = total.print_list
+heuristic_function = total.heuristic_function
+finish = total.finish
+floodfill = total.floodfill
+fall = total.fall
+fall2 = total.fall2
 import time
 import random
 import copy
 import heapq
 import math
 import sys
+import src.utils as utils
 
 from collections import deque
 from decimal import Decimal, getcontext
@@ -18,15 +26,6 @@ pygame.init()
 ###############################################################################
 ###############################################################################
 
-
-
-def print_list(v):
-    for u in v:             
-         for i in range(sz):
-            for j in range(sz):
-               print(u[i][j], end='')
-            print(' ')
-         print("-------------------------------------")
 
 
 #-----------------------------------------------------------
@@ -48,77 +47,11 @@ Algo_Name="uniform_cost_search"
 Ospace=10
 TEXT_COL = (69, 43, 6)
 bb=0
-sz=10
 number_of_red = 0
 number_of_blue = 0
 TimeE=10
 runT1=1
-start = [[0] * sz for _ in range(sz)]
 ansA = []
-
-
-
-#----------------------------------------------------------------------- heuristic function --------
-def heuristic_function(v):
-    blue=0
-    red=0
-    for i in range(sz):
-        for j in range(sz):
-            if v[i][j]==1:
-                red=1
-            elif v[i][j]==2:
-                blue=1
-    return red+blue
-
-
-#----------------------------------------------------------------------- finish function --------
-def finish(v):
-    for j in range(sz):
-        if v[sz - 1][j] != 0:
-            return False
-    return True
-
-
-#----------------------------------------------------------------------- floodfill function --------
-def floodfill(i, j, v, c):
-    if v[i][j] == c:
-        v[i] = list(v[i])  # Convert the string to a list of characters
-        v[i][j] = 0  # Reassign the value in the list
-        check[i][j] = 0
-        for k in range(4):
-            ii, jj = i + rr[k], j + cc[k]
-            if 0 <= ii < sz and 0 <= jj < sz:
-                floodfill(ii, jj, v, c)
-
-
-#----------------------------------------------------------------------- fall function --------
-def fall(v):
-    for i in range(sz - 2, -1, -1):
-        for j in range(sz):
-            if v[i + 1][j] == 0 and v[i][j] != 0:
-                k = i
-                while k < sz - 1 and v[k + 1][j] == 0:
-                    v[k + 1][j] = v[k][j]  # Reassign the value in the list
-                    v[k][j] = 0  # Reassign the value in the list
-                    k += 1
-                    
-                    
-#----------------------------------------------------------------------- fall function --------
-def fall2(v):
-    for i in range(sz - 1):
-        if v[sz - 1][i] == 0 and v[sz - 1][i + 1] != 0:
-            k = i
-            while k > -1 and v[sz - 1][k] == 0:
-                for j in range(sz):
-                    v[j][k] = v[j][k + 1]
-                    v[j][k + 1] = 0
-                k -= 1
-
-
-#----------------------------------------------------------------------- Sound initialize --------
-Play_effect = pygame.mixer.Sound("Sound\\Game2.mp3")
-Win_effect = pygame.mixer.Sound("Sound\\success.mp3")
-
 
 #----------------------------------------------------------------------- Color initialize --------
 Red = pygame.image.load('Image\\red.png') 
@@ -183,23 +116,15 @@ def display_Algo():
 
 #----------------------------------------------------------------------- count colors function --------
 def count_colors():  
-    global number_of_red, number_of_blue
-    red=0
-    blue=0
-    for i in range(sz):
-        for j in range(sz):
-            if start[i][j] == 1:
-               red += 1
-            else:
-               blue += 1
-    number_of_blue=blue
-    number_of_red=red
+   global number_of_red, number_of_blue, start
+   red, blue = utils.count_colors(start, sz)
+   number_of_blue = blue
+   number_of_red = red
 
 #----------------------------------------------------------------------- randomize function --------
 def randomize():
-   for i in range(sz):
-      for j in range(sz):
-         start[i][j]=random.randint(1,2)
+   global start
+   start = utils.randomize_board(sz)
    count_colors()
 
 
@@ -224,26 +149,29 @@ Btn_Info_img = pygame.image.load('Image\\Btn_Info.png').convert_alpha()
 Btn_Start_img = pygame.image.load('Image\\Btn_Start.png').convert_alpha()
 
 Btn_informed_img = pygame.image.load('Image\\Btn_informed.png').convert_alpha()
-Btn_uninformed_img = pygame.image.load('Image\Btn_unInofrmed.png').convert_alpha()
-Btn_home_img = pygame.image.load('Image\Btn_home.png').convert_alpha()
+Btn_uninformed_img = pygame.image.load('Image\\Btn_unInofrmed.png').convert_alpha()
+Btn_home_img = pygame.image.load('Image\\Btn_home.png').convert_alpha()
 
-Btn_BFS_img = pygame.image.load('Image\Btn_BFS.png').convert_alpha()
-Btn_DFS_img = pygame.image.load('Image\Btn_DFS.png').convert_alpha()
-Btn_DLS_img = pygame.image.load('Image\Btn_DLS.png').convert_alpha()
-Btn_UCS_img = pygame.image.load('Image\Btn_UCS.png').convert_alpha()
-Btn_ID_img = pygame.image.load('Image\Btn_ID.png').convert_alpha()
+Btn_BFS_img = pygame.image.load('Image\\Btn_BFS.png').convert_alpha()
+Btn_DFS_img = pygame.image.load('Image\\Btn_DFS.png').convert_alpha()
+Btn_DLS_img = pygame.image.load('Image\\Btn_DLS.png').convert_alpha()
+Btn_UCS_img = pygame.image.load('Image\\Btn_UCS.png').convert_alpha()
+Btn_ID_img = pygame.image.load('Image\\Btn_ID.png').convert_alpha()
 
-Btn_rundom_img = pygame.image.load('Image\Btn_rundom.png').convert_alpha()
-Btn_Start_algo_img = pygame.image.load('Image\Btn_StartAlgo.png').convert_alpha()
+Btn_rundom_img = pygame.image.load('Image\\Btn_rundom.png').convert_alpha()
+Btn_Start_algo_img = pygame.image.load('Image\\Btn_StartAlgo.png').convert_alpha()
 
-Btn_Gready_img = pygame.image.load('Image\Btn_gready.png').convert_alpha()
-Btn_A_img = pygame.image.load('Image\Btn_A.png').convert_alpha()
+Btn_Gready_img = pygame.image.load('Image\\Btn_gready.png').convert_alpha()
+Btn_A_img = pygame.image.load('Image\\Btn_A.png').convert_alpha()
 
-Btn_Back_img = pygame.image.load('Image\Trans_n.png').convert_alpha()
+Btn_Back_img = pygame.image.load('Image\\Trans_n.png').convert_alpha()
 
 Start_effect = pygame.mixer.Sound("Sound\\Start.wav")
 Click_effect = pygame.mixer.Sound("Sound\\click.wav")
-Dice_effect = pygame.mixer.Sound("Sound\dice.mp3")
+Dice_effect = pygame.mixer.Sound("Sound\\dice.mp3")
+Play_effect = pygame.mixer.Sound("Sound\\Game2.mp3")
+Win_effect = pygame.mixer.Sound("Sound\\success.mp3")
+
 
 Exit_Button = Button.Button(510, 400, Btn_Exit_img, 1)
 Info_Button = Button.Button(510, 335, Btn_Info_img, 1)
